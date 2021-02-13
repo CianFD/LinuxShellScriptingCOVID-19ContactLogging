@@ -1,0 +1,55 @@
+#!/bin/bash
+<<DESC
+A Script which utilises the mailutil tools that can be installed into Linux Terminal.
+The User is asked to enter the Name of the Contact they wish to e-mail.
+If no input is entered they are asked to try again.
+If the input entered doesn't match any Contacts they are asked to try again.
+If the input entered matches more than 1 contact they are asked to be more specific and try again.
+if the input is accepted it is passed into a grep command whcich searches ContactDetails and pipes the result into an awk command which prints the e-mail address of the requested contact.
+The user is then asked to input a Subject, then a CC E-Mail Address, and finally the Message Contact.
+The Message is then sent and user receives a confirmation.
+DESC
+
+echo -n -e '\n	Enter the Name of the Contact you wish to E-Mail:   '				#User is requested to enter the Name of the Contact they wish to e-mail
+read name											#Input is taken as value of name
+
+noOfMatches=$( grep -i -c "$name" ContactDetails )						#var noOfMatches is  declared as the number of Lines where the grep command locates a match to name in ContactDetails
+emailaddr=$( grep -i "$name" ContactDetails | awk -F'|' '{ print $4 }' )			#var emailaddr is declared as using grep to locate the contact that name matches in ContactDetails
+												#then piping result to an awk command to print the e-mail address column of that contact.
+
+while [[ -z $name ]] ; do									#while value of name is empty
+	echo "	Nothing entered. Please try again."						#User sees this message
+	echo -n -e '	Enter the Name of the Contact you wish to E-Mail:   '			#User is asked to enter the name again
+	read name										#Input is taken as value of name
+done
+
+while [[ -z $( grep -i $name ContactDetails ) ]] ; do						#while value of name does not match any Contact in ContactDetails
+	echo -e '\n	No matches found. Please try again.'					#User sees this message
+	echo -n -e '	Please enter the Name of the Contact you wish to E-Mail:   '		#User is asked to enter the name again
+	read name										#Input is taken as value of name
+done
+
+while [[ $noOfMatches > 1 ]] ; do								#while the value of name matches more than one Contact in ContactDetails
+	echo '	Your entry matched '$noOfMatches' Contacts.'					#User is told how many contacts their search matched
+	echo -e '	Your input matches too many Contacts. Please be more specific.'		#User sees this message
+	echo -n -e '	Please enter the Name of the Contact you wish to E-Mail:   '		#User is then asked to enter name again
+	read name										#Input is taken as value of name
+done
+
+echo -n -e '\n	The Contact You are about to E-Mail is: '$emailaddr				#User is told the e-mail address they are about to send an e-mail to, based on the name they input earlier
+
+echo -n -e '\n	Enter the Subject of the E-Mail:   '						#User is asked for the e-mail Subject
+read subject											#Input is taken as value of subject
+
+
+while [[ -z $subject ]] ; do									#while value of subject is empty
+	echo "	Nothing entered. Please try again."						#User sees this message
+	echo -n -e '	Enter the Name of the Contact you wish to E-Mail:   '			#User is asked to enter the subject again
+	read subject										#Input is taken as value of subject
+done
+
+echo -e '\n	You will now be asked for a CC E-Mail Address. Enter this then press Enter.'	#User is told to enter a CC E-Mail Address
+echo -e '\n	When you have entered your CC, then enter the Message content. Finally Press Enter then Press CTRL+D to send the e-mail.'	#User is then told to enter the Message Content then press CTRL+D to trigger sending the message
+mail -s $subject $emailaddr									#mail command takes in the values of subject and emailaddr as the subject and e-mail address then sends the e-mail
+
+echo -e '\n	Your message has been sent. Have a nice day.\n'					#User is told the message has been sent

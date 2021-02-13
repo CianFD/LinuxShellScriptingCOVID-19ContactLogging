@@ -1,0 +1,56 @@
+#!/bin/bash
+<<DESC
+Script used to add new Contacts to the Contact Log Tracing List.
+Script takes in the full name, address, mobile number and e-mail address of the Contact.
+The new Contact is then added to a file called ContactDetails as the last in the list of Contacts.
+If the value of any section is left blank a while loop activates to prompt them to input a value again.
+The while loop will continue until a value is entered.
+If the value of phoneNumber is a non-Numeric String, a while loop taking in a regex is enabled to make the User enter a Numeric String.
+If the value of emailAddres is not in the format of example@domain.com, another regex while loop is activated prompting to enter in correct format
+DESC
+
+read -p  "	Please enter the Full Name of the Contact:   " fullName		#Input user enters is taken as value of fullName
+
+while [[ -z $fullName ]] ; do							#If value entered is Blank
+	echo "	Nothing entered. The Contact's Name should be entered here."	#User is presented with this message
+	read -p "	Please enter the Full Name of the Contact:   " fullName	#User is then asked to enter the fullName again
+done										#Input taken as value of fullName
+
+read -p "	Please enter the Address of the Contact (Use Format: Street, Town, County):   " address		#After entering a fullName User is then asked for Address
+
+while [[ -z $address ]] ; do											#if value entered is Blank
+	echo "	Noting entered. The Contact's Address should be entered here."					#User is presented with this Message
+	read -p "	Please enter the Address of the Contact (Use Format: Street, Town, County):   " address	#User is asked to enter Address again.
+done														#Input taken as value of address
+
+read -p "	Please enter the Phone Number of the Contact:   " phoneNumber		#After entering Address User is then asked for a phoneNumber
+
+while [[ -z $phoneNumber ]] ; do							#If value entered is Blank
+	echo "	Nothing entered. The Contact's Phone Number should be entered here."	#User is presented with this message
+	read -p "	Please enter the Phone Number of the Contact:   " phoneNumber	#User is then asked to enter Phone Number again and value is read as value of phoneNumber
+done
+
+regpn=^[0-9]+$										#regpn i.e. regular expression for phone number is dictated as from beginning to end of line should be numbers only
+											#did not include a digit limit as mobile and house phones as well as different countries can have varied phone number lengths
+while ! [[ "$phoneNumber" =~ $regpn ]] ; do						#while the value of phoneNumber does not match the regex i.e. contains any letters
+	echo "	Input incorrect. Please type in Numbers only."				#User sees this message saying input was incorrect.
+	read -p "	Please enter the Phone Number of the Contact:   " phoneNumber	#User is asked to enter Phone Number again and input is read as value of phoneNumber
+done
+
+read -p "	Please enter the E-Mail Address:   " emailAddress				#User is finally asked to enter an emailAddress
+
+while [[ -z $emailAddress ]] ; do								#If value entered is Blank
+	echo "	Nothing entered. Please enter an E-Mail Address"				#User is presented with this message
+	read -p "	Please enter the E-Mail Address of the Contact:   " emailAddress	#User is then asked to enter emailAddress again.
+done
+
+regea=^[a-zA-Z0-9]\+@[a-zA-Z0-9]\+\.[a-z]+$								#regea i.e. regular expression for email address dictates the format the emailAddress var should be in.
+													#format should be upper or lower case letters and numbers, then  an @ symbol, then more upper/lower case letter/numbers,
+													#then a full stop then lowercase letters to finish
+while ! [[ "$emailAddress" =~ $regea ]] ; do								#while the value of emailAddress does not match the dictated regex format
+	echo "	Input incorrect. Please input e-mail in the following format: example@domain.com."	#User sees this message
+	read -p "	Please enter the E-Mail Address of the Contact:   " emailAddress		#User is asked to enter the E-Mail Address again and this is read as the value of emailAddress
+done
+
+echo "$fullName|$address|$phoneNumber|$emailAddress" >> ContactDetails #Values of each of the above are then added as a single line in ContactDetails
+echo -e '\n	Contact '$fullName' has been added to Contact Details.\n' #confirmation message to advise the Contact has been added.

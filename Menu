@@ -1,0 +1,50 @@
+#!/bin/bash
+<<DESC
+A simple Menu Script. When run the User is presented with a Welcome Message,
+and a Menu of 5 options. They are requested to enter the number of their chosen task.
+If they choose options 1-3, the corresponding Script is ran to either
+1. Add a Customer
+2. Remove an Existing Customer, or
+3. Search for an Existing Customer
+If they choose option 4 they are presented with the option to e-mail a Customer using
+commands from the mailutils series of Linux tools.
+If they choose option 5, the script ends.
+DESC
+
+while [ "$choice" != [fF][Ii][Vv][Ee] ]
+do
+	#echo displays the Welcome Message and Menu, then prompts to input an option.
+	echo -n -e "	Welcome to our COVID-19 Contact Tracing App!
+	Choose from  one of the following options:
+		1. Add a New Customer.
+		2. Remove an Existing Customer.
+		3. Search for a Customer.
+		4. E-Mail a Customer.
+		5. Exit.
+	Please enter the number of the task you wish to perform:   "
+
+	read choice
+
+	case $choice in				#the value of choice is then passed into a Case Statement.
+
+		[1] | [oO][Nn][Ee] )		#if the value of choice is 1 or One (case insensitive)
+			./AddContact		#then the AddContact Script is ran.
+			;;
+		[2] | [tT][Ww][Oo] )		#If the value of choice is 2 or Two (case insensitive)
+			./remove		#then the remove Script is ran.
+			;;
+		[3] | [tT][Hh][Rr][Ee][Ee] )	#If the value of choice is 3 or Three (case insensitive)
+			./search		#then the search script is ran.
+			;;
+		[4] | [fF][Oo][Uu][Rr] )	#If the value of choice is 4 or Four (case insensitive)
+			./mail			#then the mail script is ran
+			;;
+		[5] | [fF][Ii][Vv][Ee] )	#If the value of choice is 5 or Five (case insensitive)
+			exit 0			#then the Script exits with exit Code 0.
+			;;
+		*)
+			echo -e '\nOption '$choice' Not Found. Please Choose Again! \n'
+			;;			#2nd echo with blank entry -  blank line before menu reappears
+						#If the value of choice does not match one of the above
+	esac					#options then an error response is shown
+done

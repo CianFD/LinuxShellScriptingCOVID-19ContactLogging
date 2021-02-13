@@ -1,0 +1,27 @@
+#!/bin/bash
+<<DESC
+A Script to enter a Search Term and return the corresponding details of the found Contact(s).
+The User is presented with a prompt to Search. They enter a Search Term.
+If the value of the Search matches a Contact or Contacts the details of the Contact(s) are displayed.
+If nothing is entered a prompt to Search again if offered.
+If no Contact matches it responds with No Contacts Found.
+DESC
+
+echo -n -e '\n	Please enter the Known Details of the Contact(s) you wish to View:   '		#User requested to enter any Known Details of the Contact they wish to view
+read search											#Input taken as value of search
+
+while [[ -z $search ]] ; do									#If input is empty
+	echo "	Nothing entered. Please try again."						#User sees this message
+	echo -n -e '	Please enter the Known Details  of the Contact(s) you wish to View:   '	#User is asked again to enter any Known Details of the Contact
+	read search										#Input taken as value of search
+done
+
+while [[ -z $(grep -i $search ContactDetails) ]] ; do						#If the value of search does not match any of the Contacts currently in ContactDetails
+	echo "	No Contacts match your search. Please try again."				#User sees this message
+	echo -n -e '	Please enter the Known Details of the Contact(s) you wish to View:   '	#User is asked again to enter any Known Details of the Contact(s) they wish to view.
+	read search										#Input taken as value of Search
+done
+
+echo ""												#Empty Line above and below search result to make result more readable
+grep -i $search ContactDetails | awk ' { print "	" NR,$n } '				#Value of search is input into a grep command to locate the value anywhere in ContactDetails file.
+echo ""												#the result is then piped into an awk command to print all details for the Contacts found.

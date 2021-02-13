@@ -1,0 +1,57 @@
+#!/bin/bash
+<<DESC
+A Script to allow the User to search for a particular contact and then remove them from the ContactDetails File.
+The User enters Known Details of the Contact. If nothing is entered the User is prompted to try again.
+If what the User enters does not match anything in the ContactDetails file, the User is prompted to try again.
+If what the User enters returns multiple matches, the User is told too many matches occur, and prompted to try again.
+If what the User enters returns a single match, the User is queried if they wish to delete the Contact or not.
+If they choose Yes - the Contact is removed from the ContactDetails file.
+If they choose No - They are prompted if they wish to input another Contact to delete or if they wish to quit to Menu.
+If they choose to input another Contact the script loops and starts again (using a while loop)
+If they choose to Quit the program moves back to Menu.
+DESC
+
+echo -n -e '\n	Please enter the Known Details of the Contact you wish to Remove:   '		#User is requested to enter details of the Contact they wish to remove.
+read name											#Input taken as value of name
+
+noOfMatches=$( grep -i -c "$name" ContactDetails )						#var noOfMatches is declared as equal to the number of lines that the value of name matches to in ContactDetails
+choice=$( grep -i "$name" ContactDetails | awk -F'|' '{ print $1 }' )				#var choice is declared as equal to the names of the Contacts that var name matches in ContactDetails
+toBeRemoved=$( grep -i "$name" ContactDetails )							#var toBeRemoved is declared as equal to the full Contact Info of the contacts that var name matches in ContactDetails
+
+while [[ -z $name ]] ; do									#While name is empty
+	echo -e '\n	Nothing entered. Please try again.'					#User sees this message
+	echo -n -e '	Please enter the Known Details of the Contact you wish to Remove:   '	#User then prompted to enter the details of the Contact again.
+	read name										#Input taken as value of name
+done
+
+while [[ -z $(grep -i $name ContactDetails) ]] ; do						#While name doesn't equal any matches in the ContactDetails file.
+	echo -e '\n	No matches found. Please try again.'					#User sees this message
+	echo -n -e '	Please enter the Known Details of the Contact you wish to Remove:   '	#User then prompted to enter the details of the Contact again.
+	read name										#Input taken as value of name
+done
+
+while [[ $noOfMatches > 1 ]] ; do								#While name matches more than 1 Contact
+	echo -e '\n	Matching Contacts Found:   ' $noOfMatches				#Number of Matches is displayed
+	echo -e '	Your input matches too many Contacts. Please be more specific.'		#User sees this message
+	echo -n -e '	Please enter the Known Details of the Contact you wish to Remove:   '	#User then prompted to enter Details of the Contact they wish to delete again
+	read name										#Input taken as value of name
+done
+
+echo -e '\n	The Contact you wish to remove is: ' $choice.					#The User is told the name of the Contact they wish to remove.
+echo -n -e '	Do you wish to proceed [Y/N]?:   '						#User is then asked if they want to remove the Contact - Yes or No
+read yn												#Input taken as value of yn (short for yes/no to explain the variable title)
+
+case $yn in											#value of yn is passed into case command.
+
+	[yY] )											#if User inputs y or Y
+		sed -i "/$toBeRemoved/d" ContactDetails						#value of toBeRemoved is passed into Sed Command to delete it from ContactDetails
+		echo -e '\n	Contact '$choice' has been removed.\n'				#User is told Contact Name has been deleted.
+		;;
+	[nN] )											#If User inputs n or N
+		./Menu										#User is taken back to the Menu
+		;;
+	*)											#If User inputs anything else bar y,Y,n or N
+		echo -e '\n	Option '$yn' Not Found. Exiting to Menu. \n'		#User is told what they inputted is not accepted
+		./Menu
+		;;
+esac
